@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth:api'], function() {
 		'uses' => 'UserController@read_notifications'
 	]);
 	// friends
-	Route::get('/friendable', [
+	Route::post('/friendable', [
 		'uses' => 'FriendController@friendable_users'
 	]);
 	Route::post('/friends/request/send', [
@@ -50,6 +50,9 @@ Route::group(['middleware' => 'auth:api'], function() {
 		'uses' => 'FriendController@remove_friend'
 	]);
 	// private messaging
+	Route::get('/contacts', [
+		'uses' => 'PrivateMessagingController@contacts'
+	]);
 	Route::post('/message/send', [
 		'uses' => 'PrivateMessagingController@send'
 	]);

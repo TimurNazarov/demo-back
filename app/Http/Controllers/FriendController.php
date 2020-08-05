@@ -18,8 +18,9 @@ use App\Events\FriendRemoved;
 class FriendController extends Controller
 {
 
-    public function friendable_users() {
+    public function friendable_users(Request $request) {
         $user = auth()->user();
+        $new = $request->post('new');
 
         $users = User::whereDoesntHave('friends', function($query) use ($user) {
             $query->where('friend_id', $user->id);
@@ -31,6 +32,8 @@ class FriendController extends Controller
             $query->where('from', '!=', $user->id);
         })
         ->where('id', '!=', $user->id)
+        // exclude already loaded users
+        ->whereNotIn('id', $new)
         ->get();
         return FriendResource::collection($users);
     }
@@ -105,8 +108,8 @@ class FriendController extends Controller
         $friend_id = $request->post('friend_id');
         $friend = $user->friends()->findOrFail($friend_id);
 
-        // $user->friends()->detach($friend->id);
-        // $friend->friends()->detach($user->id);
+        $user->friends()->detach($friend->id);
+        $friend->friends()->detach($user->id);
         $info = [
             'removed_friend_id' => $friend_id,
             'removing_friend' => new FriendResource($user)
