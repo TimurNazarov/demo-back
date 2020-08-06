@@ -6,6 +6,15 @@ use App\User;
 
 
 class Helpers {
+    public static function paginate($models, $page = 1, $per_page = false) {
+        if(!$per_page) {
+            $per_page = config('constants.default_per_page');
+        }
+        $offset = $per_page * ($page - 1);
+        $models = $models->skip($offset)->take($per_page);
+        return $models;
+    }
+
     public static function map_notification_data($type, $data) {
         if(!$data) {
             return [];

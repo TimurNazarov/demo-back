@@ -20,7 +20,7 @@ class FriendController extends Controller
 
     public function friendable_users(Request $request) {
         $user = auth()->user();
-        $new = $request->post('new');
+        $exclude = $request->post('exclude');
 
         $users = User::whereDoesntHave('friends', function($query) use ($user) {
             $query->where('friend_id', $user->id);
@@ -33,7 +33,7 @@ class FriendController extends Controller
         })
         ->where('id', '!=', $user->id)
         // exclude already loaded users
-        ->whereNotIn('id', $new)
+        ->whereNotIn('id', $exclude)
         ->get();
         return FriendResource::collection($users);
     }

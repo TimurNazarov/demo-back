@@ -17,11 +17,13 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [
 	'uses' => 'UserController@login'
 ]);
-Route::post('/test', [
-	'uses' => 'UserController@test'
-]);
+
 
 Route::group(['middleware' => 'auth:api'], function() {
+	// test route
+	Route::post('/test', [
+		'uses' => 'UserController@test'
+	]);
 	// users
 	Route::get('/user/get', [
 		'uses' => 'UserController@get_user'
@@ -52,6 +54,9 @@ Route::group(['middleware' => 'auth:api'], function() {
 	// private messaging
 	Route::get('/contacts', [
 		'uses' => 'PrivateMessagingController@contacts'
+	]);
+	Route::post('/messages', [
+		'uses' => 'PrivateMessagingController@messages'
 	]);
 	Route::post('/message/send', [
 		'uses' => 'PrivateMessagingController@send'

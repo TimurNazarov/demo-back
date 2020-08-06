@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client as HttpClient;
 use Notification;
+use Carbon\Carbon;
+use App\Helpers\Helpers;
 use App\User;
+use App\PrivateMessage;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Friend as FriendResource;
 use App\Notifications\Dummy as DummyNotification;
@@ -13,23 +16,25 @@ use App\Notifications\Dummy as DummyNotification;
 class UserController extends Controller
 {
     public function test(Request $request) {
-        mail('asd@dasd.sd', 'asdas', json_encode(auth()->user()));
-        // $user = User::find(1);
-        // $user2 = User::find(2);
-        // $friend_request = new \App\FriendRequest;
-        // $to = 1;
-        // $friend_request->from = 2;
-        // $friend_request->to = $to;
-        // $friend_request->message = null;
-        // $friend_request->save();
-
-        // $to_user = User::findOrFail($to);
-
-        // $to_user->notify(new DummyNotification($friend_request));
-        //---
-        // $user->friends()->syncWithoutDetaching($user2->id);
-        // $user2->friends()->syncWithoutDetaching($user->id);
-        //---
+        // $msg = new PrivateMessage;
+        // $msg->from = 2;
+        // $msg->to = 1;
+        // $msg->content = 'aDY*HW!@FH89auebhfdausbgasdughasd9ghdsghsdogdndos';
+        // $msg->save();
+        $contact_id = $request->post('contact_id');
+        $exclude = $request->post('exclude');
+        $contact_id = 2;
+        // return auth()->user()->friends;
+        $contact = auth()->user()->friends()->findOrFail($contact_id);
+        $message_history = PrivateMessage::messageHistoryWith($contact_id)->orderBy('created_at', 'desc');
+        $paginated = Helpers::paginate($message_history, 1, 100)
+        ->get()
+        ->sortBy('created_at')
+        ->values()
+        ->groupBy(function ($val) {
+            return Carbon::parse($val->created_at)->format('d-m-Y');
+        });
+        return $paginated;
         
         return 123;
     }

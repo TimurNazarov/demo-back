@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class PrivateMessage extends JsonResource
 {
@@ -20,8 +21,10 @@ class PrivateMessage extends JsonResource
             'to' => $this->to,
             'content' => $this->content,
             'seen' => $this->seen,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'date' => $this->created_at->format('d-m-Y'),
+            'time' => $this->created_at->format('H:i')
+            // 'date' => Carbon::createFromTimestamp($this->created_at)->format('m-d-Y'),
+            // 'time' => Carbon::createFromTimestamp($this->created_at)->format('H:i'),
         ];
     }
 }

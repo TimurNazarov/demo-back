@@ -62,8 +62,6 @@ class User extends Authenticatable
         return PrivateMessage::where('from', $this->id)->orWhere('to', $this->id);
     }
 
-
-
     // ----
 
     public function receivesBroadcastNotificationsOn() {

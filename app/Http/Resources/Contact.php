@@ -17,13 +17,13 @@ class Contact extends JsonResource
      */
     public function toArray($request)
     {
-        $last_private_message = PrivateMessage::where([['from', auth()->user()->id], ['to', $this->id]])
-                                        ->orWhere([['to', auth()->user()->id], ['from', $this->id]])->orderBy('created_at', 'desc')->first();
+        $last_private_message = PrivateMessage::messageHistoryWith($this->id)->orderBy('created_at', 'desc')->orderBy('id', 'desc')->first();
         return [
             'id' => $this->id,
             'name' => $this->name,
             'profile_picture_url' => Helpers::file_url($this->profile_picture_path),
-            'last_private_message' => new MessageResource($last_private_message)
+            'last_private_message' => new MessageResource($last_private_message),
+            'page' => 1
         ];
     }
 }
