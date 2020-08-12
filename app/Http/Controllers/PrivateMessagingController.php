@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\PrivateMessage as Message;
 use App\Http\Resources\PrivateMessage as MessageResource;
-use App\Http\Resources\Contact as ContactResource;
 use App\Events\NewPrivateMessage;
+use App\Events\MessageRead;
 use App\Helpers\Helpers;
 use Carbon\Carbon;
+use App\User;
 
 class PrivateMessagingController extends Controller
 {
@@ -29,12 +30,14 @@ class PrivateMessagingController extends Controller
     	return $message;
     }
 
-    public function contacts() {
-        $friends = auth()->user()->friends;
+    public function contacts(Request $request) {
+        $exclude = $request->post('exclude') ? $request->post('exclude') : [];
+        $friends = auth()->user()->friends()->whereNotIn('users.id', $exclude)->get();
         return ContactResource::collection($friends);
     }
 
     public function messages(Request $request) {
+        $initial = $request->post('initial');
         $contact_id = $request->post('contact_id');
         // is friend
         $contact = auth()->user()->friends()->findOrFail($contact_id);
@@ -44,11 +47,33 @@ class PrivateMessagingController extends Controller
         $paginated = Helpers::paginate($message_history, $page, config('constants.chat_messages_per_page'))->get();
 
         $result = $paginated->sortBy('created_at')
-        ->values()
-        // group by day
-        ->groupBy(function ($val) {
+        ->values();
+        $result = MessageResource::collection($result);
+        $result = $result->groupBy(function ($val) {
             return Carbon::parse($val->created_at)->format('d-m-Y');
         });
+        if($initial) {
+            Message::unread($contact_id)->update(['seen' => true]);
+            $info = [
+                'from' => auth()->user()->id,
+                'to' => $contact_id,
+                'new' => false
+            ];
+            broadcast(new MessageRead($info));
+        }
         return $result;
+    }
+
+    public function mark_as_read(Request $request) {
+        $contact_id = $request->post('contact_id');
+        $new = $request->post('new') ? true : false;
+        Message::unread($contact_id)->update(['seen' => true]);
+        $info = [
+            'from' => auth()->user()->id,
+            'to' => $contact_id,
+            'new' => $new
+        ];
+        broadcast(new MessageRead($info));
+        return $info;
     }
 }

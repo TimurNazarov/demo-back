@@ -16,6 +16,7 @@ use App\Notifications\Dummy as DummyNotification;
 class UserController extends Controller
 {
     public function test(Request $request) {
+        return $request->test;
         // $msg = new PrivateMessage;
         // $msg->from = 2;
         // $msg->to = 1;

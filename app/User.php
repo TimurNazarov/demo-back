@@ -46,20 +46,12 @@ class User extends Authenticatable
         return $this->belongsToMany('App\User', 'user_friends_pivot', 'user_id', 'friend_id')->withTimestamps();
     }
 
-    // public function friend_requests() {
-    //     return $this->hasMany('App\FriendRequest', 'to')->orWhere('')->where('complete', false);
-    // }
-
     public function incoming_friend_requests() {
         return $this->hasMany('App\FriendRequest', 'to')->where('complete', false);
     }
 
     public function outgoing_friend_requests() {
         return $this->hasMany('App\FriendRequest', 'from')->where('complete', false);
-    }
-
-    public function messages() {
-        return PrivateMessage::where('from', $this->id)->orWhere('to', $this->id);
     }
 
     // ----

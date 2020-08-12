@@ -9,22 +9,21 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Http\Resources\FriendRequest;
 
-class FriendRequestAccepted implements ShouldBroadcast
+class MessageRead implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $friend_request; 
+    public $info; 
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(FriendRequest $friend_request)
+    public function __construct($info)
     {
-        $this->friend_request = $friend_request;
+        $this->info = $info;
     }
 
     /**
@@ -34,10 +33,6 @@ class FriendRequestAccepted implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('user.' . $this->friend_request->from);
-    }
-
-    public function broadcastWith() {
-        return ['request' => $this->friend_request];
+        return new PrivateChannel('user.' . $this->info['to']);
     }
 }

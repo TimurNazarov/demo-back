@@ -36,23 +36,23 @@ Route::group(['middleware' => 'auth:api'], function() {
 	Route::post('/friendable', [
 		'uses' => 'FriendController@friendable_users'
 	]);
-	Route::post('/friends/request/send', [
+	Route::post('/friend/requests/send', [
 		'uses' => 'FriendController@send_request'
 	]);
-	Route::post('/friends/request/cancel', [
+	Route::post('/friend/requests/cancel', [
 		'uses' => 'FriendController@cancel_request'
 	]);
-	Route::post('/friends/request/accept', [
+	Route::post('/friend/requests/accept', [
 		'uses' => 'FriendController@accept_request'
 	]);
-	Route::post('/friends/request/decline', [
+	Route::post('/friend/requests/decline', [
 		'uses' => 'FriendController@decline_request'
 	]);
-	Route::post('/friends/remove', [
+	Route::post('/friend/remove', [
 		'uses' => 'FriendController@remove_friend'
 	]);
 	// private messaging
-	Route::get('/contacts', [
+	Route::post('/contacts', [
 		'uses' => 'PrivateMessagingController@contacts'
 	]);
 	Route::post('/messages', [
@@ -60,5 +60,8 @@ Route::group(['middleware' => 'auth:api'], function() {
 	]);
 	Route::post('/message/send', [
 		'uses' => 'PrivateMessagingController@send'
+	]);
+	Route::post('/messages/mark-as-read', [
+		'uses' => 'PrivateMessagingController@mark_as_read'
 	]);
 });

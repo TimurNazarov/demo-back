@@ -23,8 +23,9 @@ class PrivateMessage extends JsonResource
             'seen' => $this->seen,
             'date' => $this->created_at->format('d-m-Y'),
             'time' => $this->created_at->format('H:i')
-            // 'date' => Carbon::createFromTimestamp($this->created_at)->format('m-d-Y'),
-            // 'time' => Carbon::createFromTimestamp($this->created_at)->format('H:i'),
+            // problem: timestamps store with UTC database by default so grouping by date works the wrong way (change default timezone in: config/app.php and config/database.php)
+            // 'date' => $this->created_at->timezone($request->header('offset'))->format('d-m-Y'),
+            // 'time' => $this->created_at->timezone($request->header('offset'))->format('H:i')
         ];
     }
 }

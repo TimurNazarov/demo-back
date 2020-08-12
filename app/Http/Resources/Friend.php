@@ -4,6 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Helpers\Helpers;
+use App\PrivateMessage;
+use App\Http\Resources\PrivateMessage as MessageResource;
 
 class Friend extends JsonResource
 {
@@ -15,10 +17,18 @@ class Friend extends JsonResource
      */
     public function toArray($request)
     {
+        $last_private_message = PrivateMessage::messageHistoryWith($this->id)->orderBy('created_at', 'desc')->orderBy('id', 'desc')->first();
         return [
             'id' => $this->id,
             'name' => $this->name,
             'profile_picture_url' => Helpers::file_url($this->profile_picture_path),
+            'last_private_message' => new MessageResource($last_private_message),
+            'unread_count' => PrivateMessage::unread($this->id)->count(),
+            // vuex preset
+            'page' => 1,
+            'typing' => false,
+            'typing_timeout' => null,
+            'initial_select' => true
         ];
     }
 }
