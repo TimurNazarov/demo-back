@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\FriendRequest;
 use App\User;
-use App\Notifications\FriendRequest as FriendRequestNotification;
+use App\Notifications\IncomingFriendRequest as IncomingFriendRequestNotification;
+use App\Notifications\FriendRequestAccepted as FriendRequestAcceptedNotification;
 use App\Http\Resources\Friend as FriendResource;
 use App\Http\Resources\FriendRequest as FriendRequestResource;
 // events
@@ -60,7 +61,7 @@ class FriendController extends Controller
 	    	$to_user = User::findOrFail($to);
 
             broadcast(new NewFriendRequest(new FriendRequestResource($friend_request)));
-        	$to_user->notify(new FriendRequestNotification($friend_request));
+        	$to_user->notify(new IncomingFriendRequestNotification($user->name));
 
 	    	return new FriendRequestResource($friend_request);
     	}
@@ -90,6 +91,8 @@ class FriendController extends Controller
         $friend_request->save();
 
         broadcast(new FriendRequestAccepted(new FriendRequestResource($friend_request)));
+
+        $from_user->notify(new FriendRequestAcceptedNotification($user->name));
         return new FriendResource($from_user);
     }
 

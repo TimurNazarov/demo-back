@@ -13,7 +13,6 @@ return [
     |
     */
 
-    'failed' => 'These credentials do not match our records.',
-    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'verify' => 'Hello :name. You registered at :website_name. Please follow this link to confirm your email: :link '
 
 ];

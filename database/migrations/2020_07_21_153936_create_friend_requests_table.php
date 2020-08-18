@@ -17,7 +17,6 @@ class CreateFriendRequestsTable extends Migration
             $table->id();
             $table->unsignedInteger('from');
             $table->unsignedInteger('to');
-            $table->text('message')->nullable();
             $table->boolean('complete')->default(false);
             $table->timestamps();
         });

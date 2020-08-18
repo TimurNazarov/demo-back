@@ -12,36 +12,34 @@ use App\PrivateMessage;
 use App\Http\Resources\User as UserResource;
 use App\Http\Resources\Friend as FriendResource;
 use App\Notifications\Dummy as DummyNotification;
+use App\Events\UserRegistered;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function test(Request $request) {
-        return $request->test;
-        // $msg = new PrivateMessage;
-        // $msg->from = 2;
-        // $msg->to = 1;
-        // $msg->content = 'aDY*HW!@FH89auebhfdausbgasdughasd9ghdsghsdogdndos';
-        // $msg->save();
-        $contact_id = $request->post('contact_id');
-        $exclude = $request->post('exclude');
-        $contact_id = 2;
-        // return auth()->user()->friends;
-        $contact = auth()->user()->friends()->findOrFail($contact_id);
-        $message_history = PrivateMessage::messageHistoryWith($contact_id)->orderBy('created_at', 'desc');
-        $paginated = Helpers::paginate($message_history, 1, 100)
-        ->get()
-        ->sortBy('created_at')
-        ->values()
-        ->groupBy(function ($val) {
-            return Carbon::parse($val->created_at)->format('d-m-Y');
-        });
-        return $paginated;
-        
-        return 123;
-    }
-
     public function get_user(Request $request) {
         return new UserResource(auth()->user());
+    }
+
+    public function register(Request $request) {
+        $locale = $request->post('locale');
+        $name = $request->post('name');
+        $email = $request->post('email');
+        $password = $request->post('password');
+        $profile_picture = $request->profile_picture_file;
+        $profile_picture_path = $profile_picture->store('profile', 'public');
+        // only file name in database
+        $profile_picture_path = str_replace('profile/', '', $profile_picture_path);
+
+        $new_user = new User;
+        $new_user->name = $name;
+        $new_user->email = $email;
+        $new_user->password = bcrypt($password);
+        $new_user->email_confirmation_code = Str::random(64);
+        $new_user->profile_picture_path = $profile_picture_path;
+        $new_user->save();
+        event(new UserRegistered(['user' => $new_user, 'locale' => $locale]));
     }
 
     public function login(Request $request) {
@@ -49,6 +47,12 @@ class UserController extends Controller
 
         $email = $request->post('email');
         $password = $request->post('password');
+
+        $user = User::where('email', $email)->firstOrFail();
+        if($user->email_verified_at == null) {
+            // error(not verified email)
+            return 321;
+        }
         // auth
         $parameters = [
             'form_params' => [
@@ -65,18 +69,8 @@ class UserController extends Controller
         // --- get user
         
         $auth_response = json_decode($auth_response->getBody(), true);
-        $bearer = 'Bearer ' . $auth_response['access_token'];
-
-        $parameters = [
-            'headers' => [
-                'Accept' => 'application/json',
-                'Authorization' => $bearer
-            ]
-        ];
-
-        $user = $http->get(url('/') . '/api/user/get', $parameters);
-
-        $user_response = json_decode($user->getBody(), true);
+        Auth::attempt(['email' => $email, 'password' => $password]);
+        $user_response = new UserResource($user);
 
         $response = [
             'auth' => $auth_response,
@@ -91,5 +85,13 @@ class UserController extends Controller
 
     public function read_notifications() {
         return auth()->user()->unreadNotifications()->update(['read_at' => now()]);
+    }
+
+    public function verify_email($confirmation_code) {
+        $user = User::where('email_confirmation_code', $confirmation_code)->firstOrFail();
+        if($user->email_verified_at == null) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
     }
 }

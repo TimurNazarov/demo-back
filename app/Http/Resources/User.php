@@ -34,10 +34,7 @@ class User extends JsonResource
                 ],
                 'outgoing' => FriendRequest::collection($this->outgoing_friend_requests),
             ],
-            'notifications' => [
-                'loaded' => Notification::collection($this->notifications()->orderBy('created_at', 'desc')->get()),
-                'new' => []
-            ]
+            'notifications' => Notification::collection($this->notifications()->orderBy('created_at', 'desc')->get()),
         ];
     }
 }

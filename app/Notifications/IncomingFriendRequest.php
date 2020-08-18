@@ -7,28 +7,27 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
-use App\FriendRequest as FriendRequestModel;
-use App\Http\Resources\FriendRequest as FriendRequestResource;
+use Carbon\Carbon;
 
-class FriendRequest extends Notification
+class IncomingFriendRequest extends Notification
 {
     use Queueable;
-
-    private $friend_request;
+    // friend name
+    private $user_name;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(FriendRequestModel $friend_request)
+    public function __construct($user_name)
     {
-        $this->friend_request = $friend_request;
+        $this->user_name = $user_name;
     }
 
     public function broadcastType()
     {
-        return 'FriendRequest';
+        return 'IncomingFriendRequest';
     }
 
     /**
@@ -43,11 +42,15 @@ class FriendRequest extends Notification
     }
 
     public function toBroadcast($notifiable) {
-        return new BroadcastMessage(collect(new FriendRequestResource($this->friend_request))->toArray());
+        return new BroadcastMessage([
+            'data' => ['name' => $this->user_name],
+            'created_at' => Carbon::now()->format('H:i d-m-Y'),
+            'read_at' => null
+        ]);
     }
 
     public function toDatabase($notifiable) {
-        return ['id' => $this->friend_request->id];
+        return ['name' => $this->user_name];
     }
 
     // /**

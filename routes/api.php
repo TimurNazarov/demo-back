@@ -18,6 +18,14 @@ Route::post('/login', [
 	'uses' => 'UserController@login'
 ]);
 
+Route::post('/register', [
+	'uses' => 'UserController@register'
+]);
+
+Route::get('/verify/{confirmation_code}', [
+	'uses' => 'UserController@verify_email'
+]);
+
 
 Route::group(['middleware' => 'auth:api'], function() {
 	// test route

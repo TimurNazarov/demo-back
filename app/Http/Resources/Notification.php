@@ -16,14 +16,13 @@ class Notification extends JsonResource
     public function toArray($request)
     {
     $type = str_replace('App\\Notifications\\', '', $this->type);
-    $data = Helpers::map_notification_data($type, $this->data);
     
         return [
           'id' => $this->id,
           'type' => $type,
           'read_at' => $this->read_at,
-          'created_at' => $this->created_at,
-          'data' => $data,
+          'created_at' => $this->created_at->format('H:i d-m-Y'),
+          'data' => $this->data,
         ];
     }
 }
