@@ -21,7 +21,7 @@ class Friend extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'profile_picture_url' => Helpers::file_url($this->profile_picture_path),
+            'profile_picture_url' => Helpers::file_url($this->profile_picture_path, 'profile', 'small'),
             'last_private_message' => new MessageResource($last_private_message),
             'unread_count' => PrivateMessage::unread($this->id)->count(),
             // vuex preset

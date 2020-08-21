@@ -3,9 +3,24 @@
 namespace App\Helpers;
 
 use App\User;
-
+use Illuminate\Support\Str;
+use \Gumlet\ImageResize;
 
 class Helpers {
+    public static function handle_image_resize($image, $folder, $sizes) {
+        $image_name = Str::random(64);
+        $image = new ImageResize($image);
+        // disable gamma (reason: multiple resizing of single image breaks gamma after first resize)
+        $image->gamma(false);
+        foreach ($sizes as $size_name) {
+            $image_size = config('constants.image_sizes.' . $size_name);
+            $image->resizeToBestFit($image_size, $image_size);
+            $small_image_name = $image_name . '-' . $size_name . '.jpg';
+            $image->save('uploads/' . $folder . '/' . $small_image_name);
+        }
+        return $image_name;
+    }
+
     public static function paginate($models, $page = 1, $per_page = false) {
         if(!$per_page) {
             $per_page = config('constants.default_per_page');
@@ -38,8 +53,7 @@ class Helpers {
         return;
     }
 
-    public static function file_url($path) {
-        // return url('/') . '/' . config('constants.main_uploads_folder_name') . '/' . $path;
-        return url('/') . '/' . config('constants.main_uploads_folder_name') . '/temp.jpg';
+    public static function file_url($file_name, $folder, $size = 'average') {
+        return url('/') . '/' . config('constants.main_uploads_folder_name') . '/' . $folder . '/' . $file_name . '-' . $size . '.jpg';
     }
 }
