@@ -129,6 +129,7 @@ class UserController extends Controller
         if($user->email_verified_at == null) {
             $user->email_verified_at = now();
             $user->save();
+            return redirect(config('app.frontend_url') . '/banner-message/verify/success');
         }
     }
 }

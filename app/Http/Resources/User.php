@@ -22,8 +22,8 @@ class User extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'profile_picture_small' => Helpers::file_url($this->profile_picture_path, 'profile', 'small'),
-            'profile_picture_average' => Helpers::file_url($this->profile_picture_path, 'profile', 'average'),
+            'profile_picture_small' => $this->profile_picture_path != null ? Helpers::file_url($this->profile_picture_path, 'profile', 'small') : null,
+            'profile_picture_average' => $this->profile_picture_path != null ? Helpers::file_url($this->profile_picture_path, 'profile', 'average') : null,
             'friends' => [
                 'loaded' => Friend::collection($this->friends),
                 'new' => []
