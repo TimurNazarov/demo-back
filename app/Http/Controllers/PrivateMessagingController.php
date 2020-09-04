@@ -14,6 +14,10 @@ use App\User;
 class PrivateMessagingController extends Controller
 {
     public function send(Request $request) {
+        $request->validate([
+            'to' => 'required|numeric',
+            'content' => 'required|min:1|max:5000'
+        ]);
     	$from = auth()->user()->id;
     	$to = $request->post('to');
     	$content = $request->post('content');
@@ -31,12 +35,20 @@ class PrivateMessagingController extends Controller
     }
 
     public function contacts(Request $request) {
+        $request->validate([
+            'exclude' => 'array',
+            'exclude.*' => 'integer'
+        ]);
         $exclude = $request->post('exclude') ? $request->post('exclude') : [];
         $friends = auth()->user()->friends()->whereNotIn('users.id', $exclude)->get();
         return ContactResource::collection($friends);
     }
 
     public function messages(Request $request) {
+        $request->validate([
+            'initial' => 'boolean',
+            'contact_id' => 'required|integer'
+        ]);
         $initial = $request->post('initial');
         $contact_id = $request->post('contact_id');
         // is friend
@@ -65,6 +77,10 @@ class PrivateMessagingController extends Controller
     }
 
     public function mark_as_read(Request $request) {
+        $request->validate([
+            'new' => 'boolean',
+            'contact_id' => 'required|integer'
+        ]);
         $contact_id = $request->post('contact_id');
         $new = $request->post('new') ? true : false;
         Message::unread($contact_id)->update(['seen' => true]);

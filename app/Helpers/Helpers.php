@@ -5,8 +5,31 @@ namespace App\Helpers;
 use App\User;
 use Illuminate\Support\Str;
 use \Gumlet\ImageResize;
+use Elasticsearch\ClientBuilder;
 
 class Helpers {
+    public static function get_user_posts($user_id, $page = 1) {
+        $elasticsearch = ClientBuilder::create()->build();
+
+        $per_page = config('constants.blogs_per_page');
+        $offset = $per_page * ($page - 1);
+        
+        $params = [
+            'index' => 'posts',
+            'body'  => [
+                'from' => $offset,
+                'size' => $per_page,
+                'sort' => ['created_at' => 'desc'],
+                'query' => [
+                    'term' => [
+                        'user.id' => $user_id
+                    ]
+                ]
+            ]
+        ];
+        $response = $elasticsearch->search($params);
+        return $response['hits']['hits'];
+    }
     public static function handle_image_resize($image, $folder, $sizes) {
         $image_name = Str::random(64);
         $image = new ImageResize($image);

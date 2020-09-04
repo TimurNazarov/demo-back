@@ -20,6 +20,10 @@ class FriendController extends Controller
 {
 
     public function friendable_users(Request $request) {
+        $request->validate([
+            'exclude' => 'array',
+            'exclude.*' => 'integer'
+        ]);
         $user = auth()->user();
         $exclude = $request->post('exclude');
 
@@ -40,9 +44,11 @@ class FriendController extends Controller
     }
 
     public function send_request(Request $request) {
+        $request->validate([
+            'to' => 'required|integer'
+        ]);
     	$user = auth()->user();
     	$to = $request->post('to');
-    	$message = $request->post('message');
     	//check if exists
     	$exists = FriendRequest::where([
     		['from', $user->id],
@@ -55,7 +61,6 @@ class FriendController extends Controller
 	    	$friend_request = new FriendRequest;
 	    	$friend_request->from = $user->id;
 	    	$friend_request->to = $to;
-	    	$friend_request->message = $message ? $message : null;
 	    	$friend_request->save();
 
 	    	$to_user = User::findOrFail($to);
@@ -68,6 +73,9 @@ class FriendController extends Controller
     }
 
     public function cancel_request(Request $request) {
+        $request->validate([
+            'to' => 'required|integer'
+        ]);
         $user = auth()->user();
         $to = $request->post('to');
         $friend_request = $user->outgoing_friend_requests()->where('to', $to)->first();
@@ -79,6 +87,9 @@ class FriendController extends Controller
     }
 
     public function accept_request(Request $request) {
+        $request->validate([
+            'from' => 'required|integer'
+        ]);
         $user = auth()->user();
         $from = $request->post('from');
         $from_user = User::findOrFail($from);
@@ -97,6 +108,9 @@ class FriendController extends Controller
     }
 
     public function decline_request(Request $request) {
+        $request->validate([
+            'from' => 'required|integer'
+        ]);
         $user = auth()->user();
         $from = $request->post('from');
         $from_user = User::findOrFail($from);
@@ -107,6 +121,9 @@ class FriendController extends Controller
     }
 
     public function remove_friend(Request $request) {
+        $request->validate([
+            'friend_id' => 'required|integer'
+        ]);
         $user = auth()->user();
         $friend_id = $request->post('friend_id');
         $friend = $user->friends()->findOrFail($friend_id);

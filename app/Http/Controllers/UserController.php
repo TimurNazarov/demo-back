@@ -11,6 +11,7 @@ use App\Helpers\Helpers;
 use App\User;
 use App\PrivateMessage;
 use App\Http\Resources\User as UserResource;
+use App\Http\Resources\UserProfile as UserProfileResource;
 use App\Http\Resources\Friend as FriendResource;
 use App\Notifications\Dummy as DummyNotification;
 use App\Events\UserRegistered;
@@ -24,14 +25,23 @@ class UserController extends Controller
         return new UserResource(auth()->user());
     }
 
+    public function profile(Request $request) {
+        $request->validate([
+            'user_id' => 'required|numeric',
+        ]);
+        $user_id = $request->post('user_id');
+        $user = User::findOrFail($user_id);
+        return new UserProfileResource($user);
+    }
+
     public function register(Request $request) {
         // validate
         $validator = Validator::make($request->all(), [
             'locale' => 'required|min:2|max:2',
-            'email' => ['required', 'unique:users', 'regex:/^[\w._]+@\w+\.\w+$/'],
+            'email' => ['bail', 'required', 'unique:users', 'regex:/^[\w._]+@\w+\.\w+$/'],
             'name' => ['required', 'regex:/^[a-zA-Zа-яА-Я\- ]{3,36}$/'],
             'password' => ['required', 'regex:/^[\w!@#$%^&*]{8,42}$/'],
-            'profile_picture_file' => 'sometimes|image|mimes:jpeg,png|max:10000',
+            'profile_picture_file' => 'bail|sometimes|image|mimes:jpeg,png|max:10000',
         ]);
         if ($validator->fails() && in_array('validation.unique', $validator->errors()->get('email'))) {
             // email exists

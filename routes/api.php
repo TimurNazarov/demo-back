@@ -28,13 +28,12 @@ Route::get('/verify/{confirmation_code}', [
 
 
 Route::group(['middleware' => 'auth:api'], function() {
-	// test route
-	Route::post('/test', [
-		'uses' => 'UserController@test'
-	]);
 	// users
 	Route::get('/user/get', [
 		'uses' => 'UserController@get_user'
+	]);
+	Route::post('/user/profile', [
+		'uses' => 'UserController@profile'
 	]);
 	// notifications
 	Route::get('/notifications/read', [
@@ -71,5 +70,15 @@ Route::group(['middleware' => 'auth:api'], function() {
 	]);
 	Route::post('/messages/mark-as-read', [
 		'uses' => 'PrivateMessagingController@mark_as_read'
+	]);
+	// user posts
+	Route::post('/user-posts', [
+		'uses' => 'PostController@user_posts'
+	]);
+	Route::post('/post/add', [
+		'uses' => 'PostController@add'
+	]);
+	Route::post('/posts/search', [
+		'uses' => 'PostController@search'
 	]);
 });
