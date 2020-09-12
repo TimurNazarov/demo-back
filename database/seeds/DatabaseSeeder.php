@@ -12,7 +12,6 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UserSeeder::class);
-        $this->call(OauthClientSeeder::class); // prod-remove
         factory(App\User::class, 10)->create();
     }
 }

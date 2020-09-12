@@ -13,6 +13,6 @@ return [
     |
     */
 
-    'verify' => 'Hello :name. You registered at :website_name. Please follow this link to confirm your email: :link '
+    'verify' => 'Hello, :name. You registered at :website_name. Please follow this link to confirm your email: :link '
 
 ];

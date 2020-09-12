@@ -39,7 +39,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'locale' => 'required|min:2|max:2',
             'email' => ['bail', 'required', 'unique:users', 'regex:/^[\w._]+@\w+\.\w+$/'],
-            'name' => ['required', 'regex:/^[a-zA-Zа-яА-Я\- ]{3,36}$/'],
+            'name' => ['required', 'regex:/^[a-zA-Zа-яА-Я\- ]{3,36}$/u'],
             'password' => ['required', 'regex:/^[\w!@#$%^&*]{8,42}$/'],
             'profile_picture_file' => 'bail|sometimes|image|mimes:jpeg,png|max:10000',
         ]);
